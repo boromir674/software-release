@@ -9,3 +9,5 @@ class Repository(RepositoryInterface):
     active_branch: HeadInterface = attr.ib()
     directory_path: str = attr.ib()
     repo_proxy = attr.ib()
+    org_name: str = attr.ib()
+    name: str = attr.ib()  # represents name on github.com
