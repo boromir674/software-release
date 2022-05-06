@@ -1,4 +1,5 @@
 import os
+import json
 
 from software_release.commands.command_class import CommandClass
 from software_release.repository_interface import RepositoryInterface
@@ -7,6 +8,11 @@ from software_release.repository_interface import RepositoryInterface
 from software_release.commands.base_command import BaseCommand
 import re
 from typing import Tuple
+
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 RegExPair = Tuple[str, str]
 
@@ -35,13 +41,15 @@ class AbstractUpdateFilesCommand(BaseCommand):
         with open(file_path, mode='r') as fr:
             initial_content = fr.read()
 
+        content = str(initial_content)
         for match_regex, replace_regex in regex_pairs:
-            content = re.sub(match_regex, replace_regex, initial_content)
+            content = re.sub(match_regex, replace_regex, content)
 
-        with open(file_path, mode='w') as fw:
-            fw.write(content)
-        
-        if content != initial_content:
+        file_content_changed = content != initial_content
+
+        if file_content_changed:
+            with open(file_path, mode='w') as fw:
+                fw.write(content)
             return file_path
 
     @classmethod
@@ -70,6 +78,11 @@ class UpdateVersionStringCommand(AbstractUpdateFilesCommand):
             (
                 (
                     fr'(version\s*=\s*["\']?v?){current_version}(["\']?)',
+                    fr"\g<1>{new_version}\g<2>"
+                ),
+                (
+                    r'(download_url\s*=\s*https://github.com/{username}/{repo}/archive/v){prev_version}(.tar.gz)'.format(
+                        username=repository.org_name, repo=repository.name, prev_version=current_version),
                     fr"\g<1>{new_version}\g<2>"
                 ),
             ),
@@ -205,7 +218,7 @@ def rst_changelog(new_version: str, changelog: dict, date: str = None, header: b
     b = new_version
     if date:
         b += ' ({})'.format(date)
-    b += '\n{}'.format('-'*(1+ len(b)))
+    b += '\n{}'.format('-' * len(b))
 
     s = '^'
     if header:
@@ -234,6 +247,13 @@ class UpdateChangelogCommand(AbstractUpdateFilesCommand):
         SECTION_DIRECTIVE = '=' * len(SECTION)
         changelog_dict = my_get_changelog(BranchCommitsGenerator(repository, f'v{current_version}'))
         changelog_rst_string = rst_changelog(str(new_version), changelog_dict, date)
+
+        if not changelog_rst_string:
+            logger.error("No Changelog Content Generated: %s", json.dumps({
+                'changelog_item_types': '[' + ', '.join([str(x) for x in changelog_dict.keys()]) + ']',
+                'changelog_rst_string': changelog_rst_string,
+            }))
+
         files = [
             file_path(default_changelog_file),
         ]
@@ -241,8 +261,8 @@ class UpdateChangelogCommand(AbstractUpdateFilesCommand):
             # CHANGELOG.rst
             (
                 (
-                    fr'({SECTION}\n{SECTION_DIRECTIVE})\n+(v?{current_version})',
-                    fr'\g<1>\n\n{changelog_rst_string}\n\n\g<2>'
+                    fr'({SECTION}\n{SECTION_DIRECTIVE}\n+)(v?{current_version})',
+                    fr'\g<1>{changelog_rst_string}\n\n\n\g<2>'
                 ),
             ),
         ]
@@ -252,4 +272,9 @@ class UpdateChangelogCommand(AbstractUpdateFilesCommand):
         return cmd_instance
 
     def execute(self) -> None:
-        return super().execute()[0], self.changes_added
+        files_changed = super().execute()
+        if not files_changed:
+            res = None
+        else:
+            res = files_changed[0]
+        return res, self.changes_added

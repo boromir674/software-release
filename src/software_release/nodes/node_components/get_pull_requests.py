@@ -7,12 +7,9 @@ class GetPullRequestsNode(Node):
     @classmethod
     def _handle(cls, request):
 
-        BRANCH_WITH_CHANGES = 'release'
-        DESTINATION_BRANCH = 'master'
-
-        pull_requests = cls.run(cls.command('get-pull-requests', 
-            "boromir674", # owner
-            "software-patterns", # repo_name
+        pull_requests = cls.run(cls.command('get-pull-requests',
+            request.repository.org_name, # owner, github username
+            request.repository.name, # repository name as seen in github
         ))
         cls.run(cls.command('render', 'pull-requests', pull_requests))
         return pull_requests

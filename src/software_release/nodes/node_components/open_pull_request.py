@@ -8,13 +8,14 @@ class OpenPullRequestNode(Node):
     @classmethod
     def _handle(cls, request):
 
-        BRANCH_WITH_CHANGES = 'release'
-        DESTINATION_BRANCH = 'temp'
-
-        command = cls.command('pull-request', 
-            "boromir674", # owner
-            "software-patterns", # repo_name
-            f"Software Patterns v{request.new_version} Release", # title
+        BRANCH_WITH_CHANGES = request.repository.active_branch
+        DESTINATION_BRANCH = 'master'
+        title = cls.run(cls.command('build-pr-title', request))
+        command = cls.command('pull-request',
+            request.repository.org_name,
+            request.repository.name,
+            title,
+            # f"Software Patterns v{request.new_version} Release", # title
             request.changelog_additions, # description
             BRANCH_WITH_CHANGES, # head_branch, where our changes are implemented
             DESTINATION_BRANCH, # base_branch, where we want to merge to

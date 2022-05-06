@@ -7,9 +7,9 @@ class WaitPullRequestApproval(Node):
     @classmethod
     def _handle(cls, request):
 
-        found = cls.run(cls.command('wait-for-pr-approval', 
-            "boromir674", # owner
-            "software-patterns", # repo_name
+        found = cls.run(cls.command('wait-for-pr-approval',
+            request.repository.org_name,
+            request.repository.name,
             request.pull_request.number
         ))
         if found:

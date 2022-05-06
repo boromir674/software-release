@@ -15,7 +15,13 @@ class DetermineNewVersionNode(Node):
 
         # Automatically recommend next semantic version
         command = cls.command('new-release', request.repository, VersionString(previous_version), force_version=None)
-        proposed_new_version, level_bump = cls.run(command)
+        # TODO fixate interface so it returns the same type and avoid doing if-else here!
+        result = cls.run(command)
+        if type(result) != tuple:  # version bump is None!
+            proposed_new_version = result
+            level_bump = None
+        else:  # version bump is at least PATCH!
+            proposed_new_version, level_bump = result
 
         # If no previous release found, show a message
         if previous_version == '0.0.0':

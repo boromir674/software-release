@@ -7,14 +7,12 @@ class UpdateChangelogNode(Node):
 
     @classmethod
     def _handle(cls, request):
-
         today = date.today()
-        current_date = today.strftime('%y-%m-%d')
+        current_date = today.strftime('%Y-%m-%d')
         
         command = cls.command('update-changelog', request.repository,
             request.previous_version, request.new_version, current_date)
         changelog_file, changes_added = cls.run(command)
-
         if changes_added:
             command = cls.command('render', 'updated-changelog',
                 request.repository.directory_path, changelog_file, changes_added)
@@ -31,6 +29,5 @@ class UpdateChangelogNode(Node):
         request.changelog_additions = changes_added
 
     def handle(self, request):
-        # self._handle(request)
-        request.changelog_additions = 'Dummy changes text'
+        self._handle(request)
         return super().handle(request)
