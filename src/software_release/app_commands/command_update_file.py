@@ -1,15 +1,12 @@
-import os
+from typing import Tuple
+import re
 import json
+import logging
 
 from software_release.commands.command_class import CommandClass
 from software_release.repository_interface import RepositoryInterface
-
-
-from software_release.commands.base_command import BaseCommand
-import re
-from typing import Tuple
-
-import logging
+from software_release.config_reader import config
+from .abstract_command_update_file import AbstractUpdateFilesCommand
 
 
 logger = logging.getLogger(__name__)
@@ -26,40 +23,6 @@ __all__ = ['UpdateVersionStringCommand', 'UpdateBranchReferencesCommand',
 
 
 SEMVER_REGEX = r'\d+\.\d+\.\d+'
-
-
-class AbstractUpdateFilesCommand(BaseCommand):
-
-    def __new__(cls, files: Tuple[str], regexes: FileRegexes):
-        return super().__new__(cls, re, 'sub', files, regexes)
-
-    def execute(self):
-        return list(filter(None, [self.update_file(file_path, regex_pairs)
-            for file_path, regex_pairs in zip(self.args[0], self.args[1])]))
-
-    def update_file(self, file_path: str, regex_pairs: RegExPairs):
-        with open(file_path, mode='r') as fr:
-            initial_content = fr.read()
-
-        content = str(initial_content)
-        for match_regex, replace_regex in regex_pairs:
-            content = re.sub(match_regex, replace_regex, content)
-
-        file_content_changed = content != initial_content
-
-        if file_content_changed:
-            with open(file_path, mode='w') as fw:
-                fw.write(content)
-            return file_path
-
-    @classmethod
-    def file_path(cls, repository_root_path):
-        def _file_path(*paths):
-            return os.path.join(repository_root_path, *paths)
-        return _file_path
-
-
-from software_release.config_reader import config
 
 
 @CommandClass.register_as_subclass('update-version-string')
@@ -94,7 +57,7 @@ class UpdateVersionStringCommand(AbstractUpdateFilesCommand):
                 ),
             ),
         ]
-        # optional python file; ie package_name/sre/__init__.py
+        # optional python file; ie package_name/src/__init__.py
         if 'version_variable' in repo_config['semantic_release']:
             version_file_path, version_variable_name = repo_config['semantic_release']['version_variable'].split(':')
             files.append(file_path(*list(version_file_path.split('/'))))
@@ -117,7 +80,7 @@ class UpdateBranchReferencesCommand(AbstractUpdateFilesCommand):
 
     def __new__(cls, repository: RepositoryInterface, branch_name):
         file_path = cls.file_path(repository.directory_path)
-        
+
         files = [
             file_path('README.rst'),
         ]
