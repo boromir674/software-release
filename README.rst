@@ -1,6 +1,7 @@
-SOFTWARE RELEASE
+Software Release Toolkit
+========================
 
-Automate Releasing of Software, following Semantic Versioning
+Automate Releasing of Software, while following Semantic Versioning.
 
 .. start-badges
 
@@ -12,15 +13,31 @@ Automate Releasing of Software, following Semantic Versioning
 | **Pypi Package:** https://pypi.org/project/software_release/
 |
 
+Let's assume you are developing a software and you 'store' and 'track' your `source files` in a repository using `git` and `github`.
+Let's also assume that the time has come to 'release' (publish) a new `version` of your software.
+
+Finally, let's hope that you have been or are willing to operate a `command line interface` (cli)` :)
+Just a `console` (aka terminal) :)
+
+Then the **Software Release Toolkit** can be your ally in helping you automate the `release process`!
+
+The `Toolkit` features the `software_release` python module, available also in `pypi` (ie install with `pip install software-release`),
+which provides the `release-software` cli, upon installation.
+
+The capabilities of `software_release` are all about automating various "tasks" that are part of the `release process`.
+Most of the **automation** is currently supplied through an `Interactive Console Wizard`.
+
 
 Features
 ========
 
-
 1. **software_release** `python package`
 
-   a. **Great Feature**
-   b. **Nice Feature**
+   a. Command Line Interface (cli) to automate the Release Process
+   b. **Release Wizard**: Interactive Console Wizard
+
+    The `Wizard` guides the user step-by-step through the 'Release Process'
+
 
 2. **Test Suite** using `Pytest`
 3. **Parallel Execution** of Unit Tests, on multiple cpu's
