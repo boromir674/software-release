@@ -63,7 +63,7 @@ class DetermineNewVersionNode(Node):
                 ),
             ]
         else:  # version bump is at least PATCH!
-            recommend = [new_version]
+            recommend = [str(new_version)]
 
         cls.run(cls.command('render',
             f' Production Release with version bump: {level_bump}\n',
