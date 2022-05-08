@@ -104,10 +104,12 @@ class UpdateVersionStringCommand(AbstractUpdateFilesCommand):
                     fr"\g<1>{new_version}\g<2>"
                 ),
             ))
-
+        else:
+            # TODO change raised Exception to something more specific
+            raise RuntimeError("Section [semantic_release] not found in Repo "
+                "Config (ie setup.cfg)")
         cmd_instance = super().__new__(cls, files, regexes)
         return cmd_instance
-
 
 
 @CommandClass.register_as_subclass('update-branch-refs')
@@ -240,12 +242,14 @@ class UpdateChangelogCommand(AbstractUpdateFilesCommand):
     # 
     # FIX: generate the correct commits Head --> Tag-on-master
     
-    def __new__(cls, repository: RepositoryInterface, current_version: str, new_version, date):
+    def __new__(cls, repository: RepositoryInterface, current_version, new_version, date):
+        if bool(current_version):
+            current_version = f'v{current_version}'
         file_path = cls.file_path(repository.directory_path)
         default_changelog_file = 'CHANGELOG.rst'
         SECTION = 'Changelog'
         SECTION_DIRECTIVE = '=' * len(SECTION)
-        changelog_dict = my_get_changelog(BranchCommitsGenerator(repository, f'v{current_version}'))
+        changelog_dict = my_get_changelog(BranchCommitsGenerator(repository, current_version))
         changelog_rst_string = rst_changelog(str(new_version), changelog_dict, date)
 
         if not changelog_rst_string:
@@ -277,4 +281,4 @@ class UpdateChangelogCommand(AbstractUpdateFilesCommand):
             res = None
         else:
             res = files_changed[0]
-        return res, self.changes_added
+        return files_changed, self.changes_added

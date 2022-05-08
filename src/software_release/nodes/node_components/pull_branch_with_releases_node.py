@@ -6,15 +6,21 @@ class PullBranchWithReleasesNode(Node):
 
     @classmethod
     def _handle(cls, request):
+        current_branch: str = request.repository.current_branch.name
         branch_to_pull = request.branch_holding_releases
-        remote_slug, urls = cls.run(cls.command('pull-branch', request.repository, branch_to_pull))
+
+        request.repository.repo_proxy.git.checkout(branch_to_pull)
+
+        request.repository.repo_proxy.git.pull()
 
         cls.run(cls.command('render', 'pulled-branch-msg',
             request.repository.directory_path,
             branch_to_pull,
-            remote_slug,
+            'origin',
             'ssh',
-            urls))
+            [_ for _ in request.repository.repo_proxy.remote().urls]))
+
+        request.repository.repo_proxy.git.checkout(current_branch)
 
     def handle(self, request):
         self._handle(request)

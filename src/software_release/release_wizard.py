@@ -11,7 +11,6 @@ class ReleaseWizard:
     repository = attr.ib()
     handler = attr.ib()
 
-
     @staticmethod
     def create(repository, nodes: Iterable[str]):
         node_objects = [Node.create(*node.split('_')) for node in nodes]
@@ -19,7 +18,7 @@ class ReleaseWizard:
             repository,
             HandlerChain.from_handlers(node_objects)
         )
-    
+
     def run(self):
         self.handler.handle(type('Request', (), {
             'repository': self.repository

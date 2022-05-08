@@ -15,13 +15,33 @@ class PreviousReleasedVersionComputerInterface:
 class PreviousReleased(PreviousReleasedVersionComputerInterface):
     revision: attr.ib()
 
-    def compute_previous_release(self, repository):
-        previous_release = get_current_version_by_tag(repository.repo_proxy)
-        return previous_release
+    def compute_previous_release(self, repository) -> Optional[str]:
+        """Find the latest release version, assuming all releases are git tagged with vX.Y.Z.
+
+        Find the latest release version, by looking at the tags in the git history for a given
+        git repository.
+
+        It is assumed, that all releases have been git tagged with a simple semantic release
+        pattern vMAJOR.MINOR.PATCH (no patterns for pre-release, builds, supported yet).
+
+        WARNING: tags not matching the v\d+\.\d+\.\d+ regular expression shall be skipped!
+
+        In case there is no git tag matching the above criteria, then it is assumed that the
+        project is about to make its first ever release and hence the '0.0.0' string is
+        returned.
+
+        Args:
+            repository (software_release.repository.Repository): the repository get a release
+                from
+
+        Returns:
+            (Optional[str]): the semantic version string or None if no matching tag was found
+        """
+        return get_last_version(repository.repo_proxy, skip_tags=None)
 
 
 def get_last_version(repo, skip_tags=None) -> Optional[str]:
-    """Find the latest version relesed by scanning the repo tags.
+    """Find the latest version released by scanning the repo tags.
 
     The repo tags need to start with v;
 
@@ -41,15 +61,3 @@ def get_last_version(repo, skip_tags=None) -> Optional[str]:
             if i.name in skip_tags:
                 continue
             return i.name[1:]  # Strip off 'v'
-
-
-def get_current_version_by_tag(repo, skip_tags=None) -> str:
-    """
-    Find the current version of the package in the current working directory using git tags.
-
-    :return: A string with the version number or 0.0.0 on failure.
-    """
-    version = get_last_version(repo, skip_tags=None)
-    if version:
-        return version
-    return "0.0.0"

@@ -10,6 +10,8 @@ class PullRequest:
     head_ref: str = attr.ib()  # branch where the changes are
     base_ref: str = attr.ib()  # branch where we want to merge the changes into
     merged: bool = attr.ib()
+    url: str = attr.ib()
+    html_url: str = attr.ib()
 
     @classmethod
     def from_github_pull_request(cls, pull_request):
@@ -20,6 +22,8 @@ class PullRequest:
             pull_request.head.ref,
             pull_request.base.ref,
             pull_request.merged,
+            pull_request.url,
+            pull_request.html_url,
         )
 
 

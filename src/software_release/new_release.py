@@ -11,17 +11,37 @@ class NextVersionComputer(NextVersionComputerInterface):
 
     def recommend_next_version(self, repository, current_version, version=None):
         level_bump = evaluate_version_bump(
-            current_version,
-            # BranchCommitsGenerator(repository, f'...v{str(current_version)}'),
-            BranchCommitsGenerator(repository, f'...master'),
+            str(current_version),
+            BranchCommitsGenerator(repository, f'v{current_version}' if bool(current_version) else current_version),
             force=version
         )
 
-        if not level_bump:
-            return current_version
+        return current_version + level_bump, level_bump
 
-        new_version = current_version + level_bump
-        return new_version, level_bump
+        # TODO Clean: remove comments
+        # if not level_bump:
+        #     return current_version, 
+
+        # new_version = current_version + level_bump
+        # return new_version, level_bump
+
+    # def get_revision(self, ref:Optional[str] = None) -> str:
+    #     """Construct a revision string from the given ref.
+
+    #     Ref can be a branch name, a commit sha or a tag.
+
+    #     If reg is None, constructs a revision based on the first ever commit.
+
+    #     Args:
+    #         ref (str, optional): the reference name to a git object. Defaults to
+    #             None.
+
+    #     Returns:
+    #         str: the git revision string
+    #     """
+    #     if not bool(ref):
+    #         return 'HEAD'
+    #     return f'...{ref}'
 
 
 LEVELS = {

@@ -52,4 +52,11 @@ class Node(metaclass=SubclassRegistry):
     def dialog(cls, dialog_type, **kwargs):
         return Dialog.create(dialog_type, **kwargs)
 
+    @classmethod
+    def echo(cls, data: str):
+        return cls.run(cls.command('render', data))
 
+    @classmethod
+    def cmd(cls, command_type: str, *args, **kwargs):
+        """Build and Run a Command. Shortcut method to execute commands."""
+        return cls.run(cls.command(command_type, *args, **kwargs))

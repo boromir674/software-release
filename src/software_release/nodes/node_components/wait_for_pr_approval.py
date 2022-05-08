@@ -6,7 +6,7 @@ class WaitPullRequestApproval(Node):
 
     @classmethod
     def _handle(cls, request):
-
+        cls.echo('Waiting for ')
         found = cls.run(cls.command('wait-for-pr-approval',
             request.repository.org_name,
             request.repository.name,

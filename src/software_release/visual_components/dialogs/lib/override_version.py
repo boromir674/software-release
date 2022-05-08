@@ -8,12 +8,11 @@ __all__ = ['RecommendedOrOverrideVersionDialog']
 @Dialog.register_as_subclass('recommended-or-override-version')
 class RecommendedOrOverrideVersionDialog(Dialog):
 
-    def dialog(self, data):
-        RECOMMENDED_VERSION_OPTION = data['recommended-version']
+    def dialog(self, data) -> str:
         CUSTOM_VERSION_OPTION = 'Input Custom Version'
-
-        choices = [
-            RECOMMENDED_VERSION_OPTION,
+        quick_recommend_versions = data['quick-recommendations']
+        
+        choices = quick_recommend_versions + [
             CUSTOM_VERSION_OPTION
         ]
         questions = [
@@ -28,7 +27,6 @@ class RecommendedOrOverrideVersionDialog(Dialog):
                 'name': 'custom-version',
                 'message': 'Please input your desired release version in semver format (ie 0.5.0, 1.0.1)',
                 'when': lambda answers: answers['recommended-or-override'] == CUSTOM_VERSION_OPTION,
-
             },
         ]
         answers = prompt(questions)

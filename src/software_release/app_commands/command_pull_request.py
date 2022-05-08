@@ -2,11 +2,13 @@ import os
 import re
 
 from github import Github
+from github.GithubException import GithubException
 from software_release.commands.command_class import CommandClass
 from software_release.commands.base_command import BaseCommand
+from software_release.pull_request import PullRequest
 
 
-__all__ = ['PullRequest']
+__all__ = ['OpenPullRequest']
 
 
 class AbstractPullRequest(BaseCommand):
@@ -16,13 +18,16 @@ class AbstractPullRequest(BaseCommand):
 
 
 @CommandClass.register_as_subclass('pull-request')
-class PullRequest(AbstractPullRequest):
+class OpenPullRequest(AbstractPullRequest):
 
     @staticmethod
     def create_pull_request(owner, repo_name, title, description, head_branch, base_branch):
 
         # using an access token
-        g = Github(os.environ['GH_TOKEN'])
+        try:
+            g = Github(os.environ['GH_TOKEN'])
+        except KeyError as error:
+            raise MissingGithubTokenError("The GH_TOKEN environment variable was not found") from error
         repo = g.get_repo(f"{owner}/{repo_name}")
 
         lines = list(description.split('\n'))
@@ -33,13 +38,20 @@ class PullRequest(AbstractPullRequest):
                 lines[i] = '-' * len(prev_line)
             prev_line = lines[i]
 
-        pr = repo.create_pull(
-            title=title,
-            body='\n'.join(lines),
-            head=head_branch,
-            base=base_branch
-        )
-        return pr
+        try:
+            pr = repo.create_pull(
+                title=title,
+                body='\n'.join(lines),
+                head=str(head_branch),
+                base=str(base_branch)
+            )
+        except GithubException as error:
+            raise PullRequestCreationError("Failed to create a new Pull Request"
+            " on github.com! Could be that there is an already opened PR,"
+            " with the same 'from' and 'to' branches.") from error
+        return PullRequest.from_github_pull_request(pr)
 
 
 class PullRequestCreationError(Exception): pass
+
+class MissingGithubTokenError(Exception): pass

@@ -16,12 +16,34 @@ def mock_git_repo():
     return MockRepo
 
 
-def test_branch_checker_with_mocked_repo(mock_git_repo, get_object):
+@pytest.fixture
+def mock_github_class():
+
+    class GithubMock:
+        def __init__(self, *args, **kwargs):
+            pass
+
+    return GithubMock
+
+
+@pytest.fixture
+def os_mock():
+    import os
+    os.environ['GH_TOKEN'] = 'TestSuiteToken'
+    return os
+
+
+def test_branch_checker_with_mocked_repo(mock_git_repo,
+    get_object, mock_github_class, os_mock):
 
     repository_factory = get_object(
         'RepositoryFactory',
         'software_release.repository_factory',
-        overrides={'Repo': lambda: mock_git_repo})
+        overrides={
+            'Repo': lambda: mock_git_repo,
+            'Github': lambda: mock_github_class,
+            'os': lambda: os_mock,
+        })
     branch_checker = BranchChecker()
     repository = repository_factory.create('/data/repos/software-patterns')
     active_branch = branch_checker.active_branch(repository)
