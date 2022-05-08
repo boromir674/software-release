@@ -35,7 +35,7 @@ Features
    a. **Job Matrix**, spanning different `platform`'s and `python version`'s
 
       1. Platforms: `ubuntu-latest`, `macos-latest`
-      2. Python Iterpreters: `3.6`, `3.7`, `3.8`, `3.9`, `3.10`
+      2. Python Interpreters: `3.8`
    b. **Parallel Job** execution, generated from the `matrix`, that runs the `Test Suite`
 
 
@@ -95,9 +95,9 @@ License
     :alt: Supported Python versions
     :target: https://pypi.org/project/software_release
 
-.. |commits_since_specific_tag_on_master| image:: https://img.shields.io/github/commits-since/boromir674/software-release/v0.0.1/master?color=blue&logo=github
+.. |commits_since_specific_tag_on_master| image:: https://img.shields.io/github/commits-since/boromir674/software-release/v0.1.0/master?color=blue&logo=github
     :alt: GitHub commits since tagged version (branch)
-    :target: https://github.com/boromir674/software-release/compare/v0.0.1..master
+    :target: https://github.com/boromir674/software-release/compare/v0.1.0..master
 
 .. |commits_since_latest_github_release| image:: https://img.shields.io/github/commits-since/boromir674/software-release/latest?color=blue&logo=semver&sort=semver
     :alt: GitHub commits since latest release (by SemVer)
