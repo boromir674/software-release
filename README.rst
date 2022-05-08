@@ -35,7 +35,7 @@ Features
    a. **Job Matrix**, spanning different `platform`'s and `python version`'s
 
       1. Platforms: `ubuntu-latest`, `macos-latest`
-      2. Python Interpreters: `3.7`, `3.8`
+      2. Python Interpreters: `3.8`
    b. **Parallel Job** execution, generated from the `matrix`, that runs the `Test Suite`
 
 
