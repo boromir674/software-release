@@ -18,31 +18,6 @@ class NextVersionComputer(NextVersionComputerInterface):
 
         return current_version + level_bump, level_bump
 
-        # TODO Clean: remove comments
-        # if not level_bump:
-        #     return current_version, 
-
-        # new_version = current_version + level_bump
-        # return new_version, level_bump
-
-    # def get_revision(self, ref:Optional[str] = None) -> str:
-    #     """Construct a revision string from the given ref.
-
-    #     Ref can be a branch name, a commit sha or a tag.
-
-    #     If reg is None, constructs a revision based on the first ever commit.
-
-    #     Args:
-    #         ref (str, optional): the reference name to a git object. Defaults to
-    #             None.
-
-    #     Returns:
-    #         str: the git revision string
-    #     """
-    #     if not bool(ref):
-    #         return 'HEAD'
-    #     return f'...{ref}'
-
 
 LEVELS = {
     1: "patch",

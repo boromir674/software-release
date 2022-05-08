@@ -36,8 +36,7 @@ class DetermineNewVersionNode(Node):
             " Then :: 'previous_release' + 'version_bump' = 'next_release'\n"
         ))
 
-        # Automatically recommend next semantic version
-        # TODO fixate interface so it returns the same type and avoid doing if-else here!
+        # Make a simple recommendantion for the next semantic release version
         result = cls.run(cls.command('new-release',
             request.repository, VersionString(previous_version), force_version=None))
         new_version: VersionString = result[0]

@@ -45,6 +45,7 @@ class OpenPullRequestNode(Node):
             print('Sorry, you have to restart and set the GH_TOKEN correctly.')
             sys.exit(1)
         except PullRequestCreationError as github_pr_creation_error:
+            print("Could not create a new Pull Request on github.com")
             if getattr(request, 'accept_existing_pr', False):
                 # try:
                 pull_request = cls.cmd('find-pr', request)
@@ -73,7 +74,6 @@ class OpenPullRequestNode(Node):
         return pull_request
 
     def handle(self, request):
-        # TODO make sure flag is correct !
         request.accept_existing_pr = True
         request.pull_request = self._handle(request)
         return super().handle(request)

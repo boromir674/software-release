@@ -200,11 +200,7 @@ def get_change_type(changelog: dict, section: str, symbol: str) -> str:
 
 @CommandClass.register_as_subclass('update-changelog')
 class UpdateChangelogCommand(AbstractUpdateFilesCommand):
-    # TODO: examining the automatically generated changelog file we see commit from 
-    # previous release already on master branch
-    # 
-    # FIX: generate the correct commits Head --> Tag-on-master
-    
+
     def __new__(cls, repository: RepositoryInterface, current_version, new_version, date):
         if bool(current_version):
             current_version = f'v{current_version}'
