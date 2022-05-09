@@ -64,14 +64,35 @@ You need to have `Python` installed.
 Quickstart
 ==========
 
-Using `pip` is the approved way for installing `software_release`.
+Installing `software_release` inside a `virtual environment`_ using `pip`_ is the approved way.
+
+Open a console and run:
 
 .. code-block:: sh
 
-    python3 -m pip install software_release
+    virtualenv env --python=python3.8
+    source env/bin/activate
+
+    pip install software_release
 
 
-TODO demonstrate a use case
+Then navigate (do a `cd`) into a folder where your 'ready-for-releasing' project (git repository) is.
+
+.. code-block:: shell
+
+    git checkout master
+    git pull
+    git checkout release
+    git rebase master
+    git push -f
+
+    release-software
+
+This will run the `Release Wizard` which will automatically step through the tasks
+required for 'releasing' a new software version!
+
+Note: It is required that your git HEAD is pointing to a branch named "release" and
+that there is a "release" on the 'remote' as well.
 
 
 License
@@ -128,3 +149,7 @@ License
 .. LINKS
 
 .. _GNU Affero General Public License v3.0: https://github.com/boromir674/software-release/blob/master/LICENSE
+
+.. _virtual environment: https://virtualenv.pypa.io/en/stable/
+
+.. _pip: https://pip.pypa.io/en/stable/
