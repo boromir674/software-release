@@ -5,7 +5,8 @@ Automate Releasing of Software, while following Semantic Versioning.
 
 .. start-badges
 
-| |build| |release_version| |wheel| |supported_versions| |gh-lic| |commits_since_specific_tag_on_master| |commits_since_latest_github_release|
+| |build| |coverage| |maintainability| |bettercodehub| |tech-debt|
+| |release_version| |wheel| |supported_versions| |gh-lic| |commits_since_specific_tag_on_master| |commits_since_latest_github_release|
 
 
 |
@@ -119,7 +120,12 @@ License
     :alt: GitHub Workflow Status (branch)
     :target: https://github.com/boromir674/software-release/actions/workflows/test.yaml?query=branch%3Amaster
 
+
 .. above url to workflow runs, filtered by the specified branch
+
+.. |coverage| image:: https://codecov.io/gh/boromir674/software-release/branch/master/graph/badge.svg?token=TNP2MG13F5
+      :target: https://codecov.io/gh/boromir674/software-release
+      :alt: Test Coverage
 
 .. |release_version| image:: https://img.shields.io/pypi/v/software_release
     :alt: Production Version
@@ -144,6 +150,24 @@ License
 .. |gh-lic| image:: https://img.shields.io/github/license/boromir674/software-release
     :alt: GitHub
     :target: https://github.com/boromir674/software-release/blob/master/LICENSE
+
+.. CODE QUALITY, MAINTAINABILITY, TECH DEBT
+
+.. |maintainability| image:: https://api.codeclimate.com/v1/badges/3c088c81951f15d717f1/maintainability
+   :target: https://codeclimate.com/github/boromir674/software-release/maintainability
+   :alt: Maintainability
+
+.. if tech debt < 5% then maintainability = A
+
+.. |tech-debt| image:: https://img.shields.io/codeclimate/tech-debt/boromir674/software-Release
+    :target: https://codeclimate.com/github/boromir674/software-release/maintainability
+    :alt: Code Climate technical debt
+
+.. GOOD SOFTWARE PATTERNS
+
+.. |bettercodehub| image:: https://bettercodehub.com/edge/badge/boromir674/software-release?branch=master
+    :target: https://bettercodehub.com/
+    :alt: Better Code Hub
 
 
 .. LINKS
