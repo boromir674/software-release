@@ -1,13 +1,8 @@
-from software_release.nodes import Node
 from software_release.utils import load
-import os
+from .. import Node
 
-
-
-my_dir = os.path.dirname(os.path.realpath(__file__))
-root = os.path.join(my_dir, '..', '..')
-
-load(my_dir, Node, root)
+# Import all class implementing the BaseCommand, inside this module's directory
+load(Node)
 
 
 # Probably we do not need the __all__ to be defined
