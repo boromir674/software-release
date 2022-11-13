@@ -11,3 +11,4 @@ py*-env
 *\.coverage
 *test-results
 *pydoer-dependency-graphs/
+node_modules
