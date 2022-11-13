@@ -1,6 +1,5 @@
 
 from software_release.nodes.node import Node
-from software_release.version_class import VersionString
 
 
 @Node.register_as_subclass('version-bump')
@@ -8,7 +7,7 @@ class VersionBumpNode(Node):
 
     @classmethod
     def _handle(cls, request):
-        
+
         # change files on disk
         command = cls.command('update-version-string', request.repository,
             request.previous_version, request.new_version)

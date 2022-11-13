@@ -39,12 +39,13 @@ class FindGithubPullRequestCommand(BaseCommand):
             base=request.branch_holding_releases,
         )
 
-        pull_requests_list = [p for p in paginated_list]
-        
+        pull_requests_list = [p for p in paginated_list if str(p.base.ref) == 'master' and str(p.head.ref) == 'release']
+
         github_pull_request = pull_requests_list[0]
 
         if len(pull_requests_list) != 1:
             logger.error("Pull Requests List has more than one elements!")
+            logger.error('PRs: ' + str([str(x) for x in pull_requests_list]))
 
         return github_pull_request
 

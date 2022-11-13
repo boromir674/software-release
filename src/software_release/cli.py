@@ -42,6 +42,7 @@ def build_interactive_console_release_wizard(repo, main_branch='master'):
         'sleep_0.35',
 
         'branch-references',
+
         'changelog',
         'sleep_0.35',
 
@@ -65,18 +66,6 @@ def build_interactive_console_release_wizard(repo, main_branch='master'):
         'push-tag',
     ])
 
-
-
-def build_changelog_diff_wizard(repo, main_branch='master'):
-    return ReleaseWizard.create(repo, [
-        'set-release-branch_{branch}'.format(branch=main_branch),
-
-        'determine-new-version',
-        # 'pull-branch-with-releases',  # ie pull master branch
-        # 'sleep_0.35',
-
-        # 'changelog',
-    ])
 
 @click.option('--path', '-p', 'repo_path', default='.', type=str, show_default=True)
 @click.command()

@@ -16,30 +16,27 @@ class OpenPullRequestNode(Node):
 
     @classmethod
     def _handle(cls, request):
-
         BRANCH_WITH_CHANGES = request.repository.active_branch.name
         DESTINATION_BRANCH = 'master'
         title = cls.run(cls.command('build-pr-title', request))
-
-        command = cls.command('pull-request',
-            request.repository.org_name,
-            request.repository.name,
-            title,
-            # f"Software Patterns v{request.new_version} Release", # title
-            request.changelog_additions, # description
-            BRANCH_WITH_CHANGES, # head_branch, where our changes are implemented
-            DESTINATION_BRANCH, # base_branch, where we want to merge to
-        )
-
         try:
-            pull_request = cls.run(command)
-            cls.run(cls.command('render', 'created-pull-request',
+            pull_request = cls.cmd(
+                'pull-request',
+                request.repository.org_name,
+                request.repository.name,
+                title,
+                # f"Software Patterns v{request.new_version} Release", # title
+                request.changelog_additions, # description
+                BRANCH_WITH_CHANGES, # head_branch, where our changes are implemented
+                DESTINATION_BRANCH, # base_branch, where we want to merge to
+            )
+            cls.cmd('render', 'created-pull-request',
                 pull_request.number,
                 pull_request.url,
                 pull_request.html_url,
                 BRANCH_WITH_CHANGES,
                 DESTINATION_BRANCH
-            ))
+            )
         except MissingGithubTokenError as error:
             print(error)
             print('Sorry, you have to restart and set the GH_TOKEN correctly.')

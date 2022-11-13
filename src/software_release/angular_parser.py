@@ -6,7 +6,7 @@ https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-g
 import logging
 import re
 from typing import List
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
 
 logger = logging.getLogger(__name__)
 
@@ -34,23 +34,22 @@ def parse_paragraphs(text: str) -> List[str]:
     ]
 
 
-
-
 # Supported commit types for parsing
-TYPES = {
-    'feat': 'feature',
-    'fix': 'fix',
-    'test': 'test',
-    'docs': 'documentation',
-    'style': 'style',
-    'refactor': 'refactor',
-    'build': 'build',
-    'ci': 'ci',
-    'perf': 'performance',
-    'chore': 'chore',
-    'revert': 'revert',
-    'improvement': 'improvement'
-}
+TYPES = OrderedDict((  # alias (on git message) -> human readable label 
+    ('feat', 'feature'),
+    ('fix', 'fix'),
+    ('test', 'test'),
+    ('docs', 'documentation'),
+    ('dev', 'development'),
+    ('style', 'style'),
+    ('refactor', 'refactor'),
+    ('build', 'build'),
+    ('ci', 'ci'),
+    ('perf', 'performance'),
+    ('chore', 'chore'),
+    ('revert', 'revert'),
+    ('improvement', 'improvement'),
+))
 
 re_parser = re.compile(
     r"(?P<type>" + "|".join(TYPES.keys()) + ")"

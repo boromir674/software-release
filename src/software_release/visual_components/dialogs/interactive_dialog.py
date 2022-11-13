@@ -14,7 +14,7 @@ class TerminalDialog:
         """Receive input though the terminal, using an interactive dialog.
 
         All required information for rendering the dialog (ie text, available 
-        choices, etc) should should be included in the 'data' method argument.
+        choices, etc) should be included in the 'data' method argument.
 
         Args:
             data (dict): information required for rendering the content of the

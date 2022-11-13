@@ -26,21 +26,34 @@ class AbstractUpdateFilesCommand(BaseCommand):
             for file_path, regex_pairs in zip(self.args[0], self.args[1])]))
 
     def update_file(self, file_path: str, regex_pairs: RegExPairs):
-        with open(file_path, mode='r') as fr:
-            initial_content = fr.read()
+        if os.path.isfile(file_path):
+            try:
+                with open(file_path, mode='r') as fr:
+                    initial_content = fr.read()
 
-        content = str(initial_content)
-        for match_regex, replace_regex in regex_pairs:
-            content = re.sub(match_regex, replace_regex, content)
+                assert initial_content
 
-        file_content_changed = content != initial_content
-        print(file_content_changed)
-        assert file_content_changed
+                content = str(initial_content)
+                for match_regex, replace_regex in regex_pairs:
+                    # print('MATCH REGEX:', match_regex)
+                    # print('REPLACE REGEX:', replace_regex)
+                    _ = re.sub(match_regex, replace_regex, content)
+                    if _ == content:
+                        print(f'WARNING: DID NOT UPDATE {file_path}!')
+                        print('REG EX DID NOT MATCH:')
+                        print('REG: ', match_regex)
+                    content = _
 
-        if file_content_changed:
-            with open(file_path, mode='w') as fw:
-                fw.write(content)
-            return file_path
+                file_content_changed = content != initial_content
+
+                if file_content_changed:
+                    with open(file_path, mode='w') as fw:
+                        fw.write(content)
+                    return file_path
+            except Exception as error:
+                # TODO Improve: at least log the error, if not raise
+                print('Error Updating File:', file_path)
+                raise error
 
     @classmethod
     def file_path(cls, repository_root_path):

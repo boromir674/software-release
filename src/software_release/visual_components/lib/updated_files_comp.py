@@ -67,16 +67,16 @@ class UpdatedBranchReferences(VisualComponent):
 
 
 
-@attr.s
+@attr.s(auto_attribs=True)
 @VisualComponent.register_as_subclass('updated-changelog')
 class UpdatedChangelog(VisualComponent):
-    repository_dir: str = attr.ib()
-    changelog_file: str = attr.ib()
-    changes_added = attr.ib()
+    repository_dir: str
+    changelog_file: str
+    changes_added: str 
 
     _relative_path: str = attr.ib(init=False,
         default=attr.Factory(lambda self: os.path.relpath(self.changelog_file, self.repository_dir), takes_self=True))
-    string_line = attr.ib(init=False,
+    string_line: str = attr.ib(init=False,
         default=attr.Factory(lambda self: f'  * {self._relative_path}', takes_self=True))
 
     def __attrs_post_init__(self):

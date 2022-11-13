@@ -5,4 +5,5 @@ from .command_interface import CommandInterface
 __all__ = ['CommandClass']
 
 
-class CommandClass(metaclass=SubclassRegistry[CommandInterface]): pass
+class CommandClass(metaclass=SubclassRegistry[CommandInterface]):
+    pass
