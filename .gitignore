@@ -12,3 +12,4 @@ py*-env
 *test-results
 *pydoer-dependency-graphs/
 node_modules
+pydeps
