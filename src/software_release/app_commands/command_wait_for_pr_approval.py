@@ -18,7 +18,11 @@ class WaitPullRequestApproval(AbstractWaitPullRequestApproval):
 
     @classmethod
     def wait_for_pr_approval(cls, owner, repo_name, pr_number, *request_args):
-        g = Github(os.environ['GH_TOKEN'])
+        try:
+            g = Github(os.environ['SOFTWARE_RELEASE_GH_API_TOKEN'])
+        except KeyError as error:
+            raise MissingGithubTokenError("The SOFTWARE_RELEASE_GH_API_TOKEN environment variable was not found") from error
+
         repo = g.get_repo(f"{owner}/{repo_name}")
 
         pr_approved = False
@@ -30,3 +34,6 @@ class WaitPullRequestApproval(AbstractWaitPullRequestApproval):
                     break
             sleep(2)
         return True
+
+
+class MissingGithubTokenError(Exception): pass
