@@ -86,3 +86,15 @@ class RenderRepositoryInformation(AbstractRenderCommand):
     def execute(self) -> any:
         for command in self.commands:
             command.execute()
+
+
+@CommandClass.register_as_subclass('github-releases-list')
+class RenderGithubReleases(AbstractRenderCommand):
+
+    def __new__(cls, github_releases):
+        render_cmd_instance = super().__new__(cls, command_renderer)
+        render_cmd_instance.visual_components = [
+            '',
+            VisualComponent.create('github-releases-list', github_releases),
+        ]
+        return render_cmd_instance
