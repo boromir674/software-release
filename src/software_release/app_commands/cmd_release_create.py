@@ -1,6 +1,5 @@
 import typing as t
 import os
-import urllib
 
 from software_release.commands.command_class import CommandClass
 from software_release.commands.base_command import BaseCommand
@@ -24,7 +23,7 @@ class CreateGithubRelease(AbstractGithubReleaseCreate):
         params = urllib.parse.urlencode(release_info
         # {
         #     "tag_name": "v1.0.0",
-        #     "target_commitish": "master",
+        #     "target_commitish": "main",
         #     "name": "v1.0.0",
         #     "body":"Description of the release",
         #     "draft": False,
@@ -38,7 +37,7 @@ class CreateGithubRelease(AbstractGithubReleaseCreate):
             "X-GitHub-Api-Version": "2022-11-28",
         }
         URL = f'https://api.github.com/repos/{owner}/{repo_name}/releases'
-        request = urllib.request.Request(URL, data=None, headers=headers, origin_req_host=None, unverifiable=False,
+        request = urllib.request.Request(URL, data=params, headers=headers, origin_req_host=None, unverifiable=False,
             method='POST')
         response = urllib.request.urlopen(request)
         if response.status != 200:
