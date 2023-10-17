@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, List
 import typing as t
 import re
 import json
@@ -76,15 +76,16 @@ class UpdateVersionStringCommand(AbstractUpdateFilesCommand):
             file_path('README.rst'),
             file_path('pyproject.toml'),
             file_path('docs', 'conf.py'),
+            file_path('package.json'),
         ]
         regexes = [
             # setup.cfg
             (
-                (
+                (  # 1st substitution
                     fr'(version\s*=\s*["\']?v?){current_version}(["\']?)',
                     fr"\g<1>{new_version}\g<2>"
                 ),
-                (
+                (  # 2nd substitution
                     r'(download_url\s*=\s*https://github.com/{username}/{repo}/archive/v){prev_version}(.tar.gz)'.format(
                         username=repository.org_name, repo=repository.name, prev_version=current_version),
                     fr"\g<1>{new_version}\g<2>"
@@ -92,7 +93,7 @@ class UpdateVersionStringCommand(AbstractUpdateFilesCommand):
             ),
             # README.rst
             (
-                (
+                (  # 1st substitution
                     fr'(["\']?v?){current_version}(["\']?)',
                     fr"\g<1>{new_version}\g<2>"
                 ),
@@ -115,8 +116,15 @@ class UpdateVersionStringCommand(AbstractUpdateFilesCommand):
                     fr"\g<1>{new_version}\g<2>"
                 ),
             ),
+            # package.json
+            (
+                (
+                    fr'((?:  |    )"version": "v?){current_version}(")',
+                    fr"\g<1>{new_version}\g<2>"
+                ),
+            ),
         ]
-        # optional python file; ie package_name/src/__init__.py
+        # optional python file; ie package_name/src/__init__.py, __version__.py
         if 'version_variable' in repo_config['software_release']:
             version_file_path, version_variable_name = repo_config['software_release']['version_variable'].split(':')
             files.append(file_path(*list(version_file_path.split('/'))))
@@ -127,8 +135,7 @@ class UpdateVersionStringCommand(AbstractUpdateFilesCommand):
                 ),
             ))
         else:
-            # TODO change raised Exception to something more specific
-            raise RuntimeError("Section [software-release] not found in pyproject.toml")
+            logger.debug("Section [software-release] not found in pyproject.toml")
         cmd_instance = super().__new__(cls, files, regexes)
         return cmd_instance
 
@@ -156,7 +163,7 @@ class UpdateBranchReferencesCommand(AbstractUpdateFilesCommand):
         return cmd_instance
 
 
-re_breaking = re.compile('BREAKING CHANGE: (.*)')
+re_breaking = re.compile('BREAKING CHANGES?:\s*(.*)')
 
 
 def my_get_changelog(commit_generator) -> dict:
@@ -178,29 +185,32 @@ def my_get_changelog(commit_generator) -> dict:
     ] + [('breaking', [])])
 
     for commit in iter(commit_generator):
-        commit_message = commit.message
-        _hash = commit.sha
-
         try:
             # [level_bump [3,2,1], type [feature, fix, etc], 'scope', 'subject']
-            message = parse_commit_message(commit_message)
+            # ["bump", "type", "scope", "descriptions"]
+            message = parse_commit_message(commit.message)
             # if message[1] not in changes:
             #     continue
+            commit_semantic_type: str = message.type  # ie feat, test, fix, etc
+            descriptions: List[str] = message.descriptions
+            commit_subject: str = descriptions[0]  # commit subject after type and optional scope
+            if commit_semantic_type not in changes:
+                changes[commit_semantic_type] = []    
+            changes[commit_semantic_type].append((commit.sha, commit_subject))
 
-            changes[message[1]].append((_hash, message[3][0]))
-
-            if len(message[3]) > 1:
-                if 'BREAKING CHANGE' in message[3][1]:
-                    parts = re_breaking.match(message[3][1])
+            if len(descriptions) > 1:
+                if 'BREAKING CHANGE' in descriptions[1]:
+                    parts = re_breaking.match(descriptions[1])
                     if parts:
-                        changes['breaking'].append((_hash, parts.group(1)))
-                if len(message[3]) > 2:
-                    if message[3][2] and 'BREAKING CHANGE' in message[3][2]:
-                        parts = re_breaking.match(message[3][2])
+                        changes['breaking'].append((commit.sha, parts.group(1)))
+                if len(descriptions) > 2:
+                    if descriptions[2] and 'BREAKING CHANGE' in descriptions[2]:
+                        parts = re_breaking.match(descriptions[2])
                         if parts:
-                            changes['breaking'].append((_hash, parts.group(1)))
+                            changes['breaking'].append((commit.sha, parts.group(1)))
 
         except UnknownCommitMessageStyleError as err:
+            print(err)
             pass
 
     return changes
