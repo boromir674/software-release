@@ -243,17 +243,37 @@ def rst_changelog(new_version: str, changelog: dict, date: str = None, header: b
             underline=changes_underline_char * len(CHANGES_SUBSECTION)
         )
     change_category_underline_char = '"'
-    b += '\n\n' + to_string(changelog, underline=change_category_underline_char)
+    b += '\n\n' + '\n\n'.join(
+        [changes_item(
+            header=f'{change_type}\n{len(change_type) * change_category_underline_char}',
+            body=changes_to_string(changes),
+        ) for change_type, changes in changelog.items() if changes])
 
     return b.strip()
 
-
-def to_string(changelog: t.Dict, underline='"') -> str:
-    return '\n\n'.join(
+def md_changelog(new_version: str, changelog: dict, date: str = None, header: bool = False) -> str:
+    """Generate a markdown formated updated changelog."""
+    if new_version[0] == 'v':
+        new_version = new_version[1:]
+    b = new_version
+    if date:
+        b += f' ({date})'
+    b = '## ' + b
+    
+    item_section_level = '####'
+    if header:
+        CHANGES_SUBSECTION = 'Changes'
+        b += '\n\n### {changes_title}'.format(
+            changes_title=CHANGES_SUBSECTION,
+        )
+        item_section_level += '#'
+    b += '\n\n' + '\n\n'.join(
         [changes_item(
-            header=f'{change_type}\n{len(change_type) * underline}',
+            header=f'{item_section_level} {change_type}',
             body=changes_to_string(changes),
         ) for change_type, changes in changelog.items() if changes])
+
+    return b.strip()
 
 
 def changes_to_string(changes: t.Sequence[t.Tuple[str, str]]) -> str:
@@ -270,6 +290,11 @@ class UpdateChangelogCommand(AbstractUpdateFilesCommand):
 
     SECTION = 'Changelog'
     SECTION_DIRECTIVE = '=' * len(SECTION)
+    supported_changelog_formats = {
+        'rst': 'CHANGELOG.rst',
+        'md': 'CHANGELOG.md',
+    }
+
     default_changelog_file = 'CHANGELOG.rst'
 
     def __new__(cls, repository: RepositoryInterface, current_version, new_version, date):
@@ -277,28 +302,44 @@ class UpdateChangelogCommand(AbstractUpdateFilesCommand):
         if bool(current_version):
             current_version = f'v{current_version}'
         file_path = cls.file_path(repository.directory_path)
-        
+
         changelog_dict = my_get_changelog(BranchCommitsGenerator(repository, current_version))
         changelog_rst_string = rst_changelog(str(new_version), changelog_dict, date, header=True)
-        if not changelog_rst_string:
+        changelog_md_string = md_changelog(str(new_version), changelog_dict, date, header=True)
+        if not changelog_rst_string or not changelog_md_string:
             logger.error("No Changelog Content Generated: %s", json.dumps({
                 'changelog_item_types': '[' + ', '.join([str(x) for x in changelog_dict.keys()]) + ']',
                 'changelog_rst_string': changelog_rst_string,
+                'changelog_md_string': changelog_md_string,
             }))
 
         files = [
-            file_path(cls.default_changelog_file),
+            file_path(cls.supported_changelog_formats['rst']),
+            file_path(cls.supported_changelog_formats['md']),
         ]
         regexes = [
             # CHANGELOG.rst
             (
-                (
+                (  # 1st replacement operation
                     fr'({cls.SECTION}\n{cls.SECTION_DIRECTIVE}\n*)(v?{latest_version_string_in_changelog})',
                     fr'\g<1>{changelog_rst_string}\n\n\n\g<2>'
                 ),
             ),
+            # CHANGELOG.md
+            (
+                (  # 1st replacement operation
+                    fr'(# Changelog\n+)(## \[?v?{latest_version_string_in_changelog}\]?)',
+                    fr'\g<1>{changelog_md_string}\n\n\n\g<2>'
+                    # fr'\n## [{new_version}] - {date}'
+                ),
+            ),
         ]
 
+            # # CHANGELOG.md
+            #     (
+            #         fr'({cls.SECTION}\n{cls.SECTION_DIRECTIVE}\n*)(v?{latest_version_string_in_changelog})',
+            #         fr'\g<1>{changelog_rst_string}\n\n\n\g<2>'
+            #     ),
         cmd_instance = super().__new__(cls, files, regexes)
         cmd_instance.changes_added = changelog_rst_string
         return cmd_instance
