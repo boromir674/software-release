@@ -1,3 +1,4 @@
+
 from software_release.commands.command_class import CommandClass
 from software_release.commands.base_command import BaseCommand
 from software_release.new_release import NextVersionComputer

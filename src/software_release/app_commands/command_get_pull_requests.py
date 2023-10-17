@@ -24,8 +24,12 @@ class GetPullRequests(AbstractGetPullRequest):
             args = ['all']
         else:
             args = request_args
-        # using an access token
-        g = Github(os.environ['GH_TOKEN'])
+        try:
+            g = Github(os.environ['SOFTWARE_RELEASE_GH_API_TOKEN'])
+        except KeyError as error:
+            raise MissingGithubTokenError("The SOFTWARE_RELEASE_GH_API_TOKEN environment variable was not found") from error
         repo = g.get_repo(f"{owner}/{repo_name}")
         pull_requests = repo.get_pulls(*args)
         return PullRequests.from_github_get_pulls(pull_requests)
+
+class MissingGithubTokenError(Exception): pass

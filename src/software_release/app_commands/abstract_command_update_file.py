@@ -3,8 +3,11 @@ import re
 from typing import Tuple
 import logging
 from software_release.commands.base_command import BaseCommand
+import logging
 
 __all__ = ['AbstractUpdateFilesCommand']
+
+logger = logging.getLogger(__name__)
 
 
 RegExPair = Tuple[str, str]
