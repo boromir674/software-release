@@ -12,14 +12,14 @@ class UpdateChangelogNode(Node):
 
     @classmethod
     def _handle(cls, request):
+        # TODO handle none previous_version or none current_version
+        # by logging a warning and adding a dummy string , so that the changelog is generated
+        # nonetheless
         changed_files, changes_added = cls.cmd('update-changelog',
             request.repository,
             request.previous_version,
             request.new_version,
             date.today().strftime('%Y-%m-%d'))
-        print(type(changed_files))
-        print(changed_files)
-        print(changes_added)
         if changed_files:
             [changelog_file] = changed_files
             cls.echo('We are about to commit the Changelog file.\n'
@@ -40,6 +40,8 @@ class UpdateChangelogNode(Node):
                     [changelog_file],
                     commit.message,
                     commit.sha)
+        else:
+            logger.warning('No changes to the CHANGELOG file.')
         request.changelog_additions = changes_added
 
     def handle(self, request):

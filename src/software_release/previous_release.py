@@ -1,8 +1,12 @@
 import re
+import json
 from typing import Optional
 
 import attr
 from git import TagObject
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class PreviousReleasedVersionComputerInterface:
@@ -56,8 +60,14 @@ def get_last_version(repo, skip_tags=None) -> Optional[str]:
             return tag.tag.tagged_date
         return tag.commit.committed_date
 
+    semver_regex = re.compile(r'^v\d+\.\d+\.\d+')
     for i in sorted(repo.tags, reverse=True, key=version_finder):
-        if re.match(r"v\d+\.\d+\.\d+", i.name):  # Matches vX.X.X
+        if semver_regex.match(i.name):  # Matches vX.X.X
             if i.name in skip_tags:
                 continue
             return i.name[1:]  # Strip off 'v'
+    logger.warning("No version found in tags: %s", json.dumps({
+        "tags": [i.name for i in repo.tags],
+        "skip_tags": skip_tags,
+        "regex": semver_regex.pattern,
+    }, indent=2, sort_keys=True))

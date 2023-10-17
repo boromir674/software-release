@@ -18,13 +18,16 @@ class RepositoryFactory(RepositoryFactoryInterface):
         try:
             url: str = repo.remote().url
             _ = url.split(':')[1].split('/')
-            org_name, repo_name = _[0], _[1].split('.')[0]
+            org_name, repo_name = _[0], '.'.join(_[1].split('.')[:-1])
         except ValueError as error:
             print(error)
             url = 'None'
             org_name = 'None'
             repo_name = 'None'
-        github_proxy = Github(os.environ['GH_TOKEN'])
+        try:
+            github_proxy = Github(os.environ['SOFTWARE_RELEASE_GH_API_TOKEN'])
+        except KeyError as error:
+            raise MissingGithubTokenError("The SOFTWARE_RELEASE_GH_API_TOKEN environment variable was not found") from error
         return Repository(
             repo.active_branch,
             directory,
@@ -33,3 +36,6 @@ class RepositoryFactory(RepositoryFactoryInterface):
             repo_name,
             github_proxy,
         )
+
+
+class MissingGithubTokenError(Exception): pass

@@ -10,7 +10,7 @@ class VersionBumpNode(Node):
 
         # change files on disk
         command = cls.command('update-version-string', request.repository,
-            request.previous_version, request.new_version)
+            request.previous_version, str(request.new_version))
         updated_files = cls.run(command)
 
         # Commit changes; git commit -m "..."

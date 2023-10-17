@@ -32,3 +32,6 @@ class VersionString:
         if o is None:
             return str(self) == '0.0.0'
         return str(self) == str(o)
+
+    def is_prerelease(self):
+        return bool(VersionInfo.parse(self.string).prerelease)

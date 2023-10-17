@@ -1,4 +1,4 @@
-from PyInquirer import prompt
+from questionary import prompt
 from ..interactive_dialog import Dialog
 
 

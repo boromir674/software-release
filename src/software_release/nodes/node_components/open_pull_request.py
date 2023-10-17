@@ -17,7 +17,9 @@ class OpenPullRequestNode(Node):
     @classmethod
     def _handle(cls, request):
         BRANCH_WITH_CHANGES = request.repository.active_branch.name
-        DESTINATION_BRANCH = 'master'
+        DESTINATION_BRANCH = request.branch_holding_releases or None
+        if not DESTINATION_BRANCH:
+            raise RuntimeError("Please include the 'set-release-branch' node before calling this one")
         title = cls.run(cls.command('build-pr-title', request))
         try:
             pull_request = cls.cmd(

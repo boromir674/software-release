@@ -47,14 +47,22 @@ class DetermineNewVersionNode(Node):
             minimum_release = new_version + 'patch'
             pre_release_delimeter = '-'
             recommend = [
+                # 1st recommendation is to to increase by 1 the patch number in
+                # the M.m.p semver sub-part and attach the '-dev' suffix to indicate this is a
+                # a pre-release (ie a dev release)
                 '{version}{sep}{pre_release_tag}'.format(
                     version=minimum_release,
                     sep=pre_release_delimeter,
                     pre_release_tag='dev'
                 ),
+                # 2nd recommendation is to to increase by 1 the patch number in
+                # the M.m.p semver sub-part and treat this as a regular patch bump
                 '{version}'.format(
                     version=minimum_release
                 ),
+                # 3rd recommendation is to to increase by 1 the minor number in
+                # the M.m.p semver sub-part and attach the '-pre' suffix to indicate this is a
+                # a pre-release
                 '{version}{sep}{pre_release_tag}'.format(
                     version=minimum_release,
                     sep=pre_release_delimeter,
@@ -97,7 +105,10 @@ class DetermineNewVersionNode(Node):
         return previous_version, new_version
 
     def handle(self, request):
+        # Find previous version and come up with the new release version 
         previous_version, new_version = self._handle(request)
+        # Update Request
         request.previous_version = previous_version
-        request.new_version = new_version
+        request.new_version = VersionString(new_version)
+        # and pass on to the next Node (Handler in the Chain)
         return super().handle(request)
